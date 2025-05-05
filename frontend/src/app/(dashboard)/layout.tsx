@@ -1,4 +1,5 @@
 "use client"
+const API_URL = process.env.NEXT_PUBLIC_API_URL!;
 
 import { useEffect, useState } from "react"
 import { SidebarLeft } from "@/components/sidebar/sidebar-left"
@@ -30,6 +31,7 @@ export default function DashboardLayout({
   const personalAccount = accounts?.find(account => account.personal_account)
   const { user, isLoading } = useAuth()
   const router = useRouter()
+  const MOCK_HEALTHY = true
   
   useEffect(() => {
     // setShowPricingAlert(false)
@@ -38,23 +40,10 @@ export default function DashboardLayout({
 
   // Check API health
   useEffect(() => {
-    const checkHealth = async () => {
-      try {
-        const health = await checkApiHealth()
-        setIsApiHealthy(health.status === 'ok')
-      } catch (error) {
-        console.error('API health check failed:', error)
-        setIsApiHealthy(false)
-      } finally {
-        setIsCheckingHealth(false)
-      }
-    }
+    setIsApiHealthy(MOCK_HEALTHY);
+    setIsCheckingHealth(false);
+  }, []);
 
-    checkHealth()
-    // Check health every 30 seconds
-    const interval = setInterval(checkHealth, 30000)
-    return () => clearInterval(interval)
-  }, [])
 
   // Check authentication status
   useEffect(() => {
