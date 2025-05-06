@@ -8,7 +8,7 @@ from typing import Optional, Dict, Any, Union
 from PIL import Image
 
 from agentpress.tool import Tool, ToolResult, openapi_schema, xml_schema
-from sandbox.sandbox import SandboxToolsBase, Sandbox
+from backend.sandbox.sandboxy import SandboxToolsBase, Sandbox
 
 KEYBOARD_KEYS = [
     'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',

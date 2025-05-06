@@ -1,39 +1,40 @@
 from typing import Optional, Dict, List
 from uuid import uuid4
 from agentpress.tool import ToolResult, openapi_schema, xml_schema
-from sandbox.sandbox import SandboxToolsBase, Sandbox
+#from backend.sandbox.sandboxy import SandboxToolsBase, Sandbox
 from agentpress.thread_manager import ThreadManager
 
-class SandboxShellTool(SandboxToolsBase):
-    """Tool for executing tasks in a Daytona sandbox with browser-use capabilities. 
-    Uses sessions for maintaining state between commands and provides comprehensive process management."""
+'''
+#class SandboxShellTool(SandboxToolsBase):
+ #   """Tool for executing tasks in a Daytona sandbox with browser-use capabilities. 
+  #  Uses sessions for maintaining state between commands and provides comprehensive process management."""
+#
+ #   def __init__(self, project_id: str, thread_manager: ThreadManager):
+  #      super().__init__(project_id, thread_manager)
+   #     self._sessions: Dict[str, str] = {}  # Maps session names to session IDs
+    #    self.workspace_path = "/workspace"  # Ensure we're always operating in /workspace
 
-    def __init__(self, project_id: str, thread_manager: ThreadManager):
-        super().__init__(project_id, thread_manager)
-        self._sessions: Dict[str, str] = {}  # Maps session names to session IDs
-        self.workspace_path = "/workspace"  # Ensure we're always operating in /workspace
+    #async def _ensure_session(self, session_name: str = "default") -> str:
+     #   """Ensure a session exists and return its ID."""
+      #  if session_name not in self._sessions:
+       #     session_id = str(uuid4())
+        #    try:
+         #       await self._ensure_sandbox()  # Ensure sandbox is initialized
+          #      self.sandbox.process.create_session(session_id)
+           #     self._sessions[session_name] = session_id
+            #except Exception as e:
+             #   raise RuntimeError(f"Failed to create session: {str(e)}")
+        #return self._sessions[session_name]
 
-    async def _ensure_session(self, session_name: str = "default") -> str:
-        """Ensure a session exists and return its ID."""
-        if session_name not in self._sessions:
-            session_id = str(uuid4())
-            try:
-                await self._ensure_sandbox()  # Ensure sandbox is initialized
-                self.sandbox.process.create_session(session_id)
-                self._sessions[session_name] = session_id
-            except Exception as e:
-                raise RuntimeError(f"Failed to create session: {str(e)}")
-        return self._sessions[session_name]
-
-    async def _cleanup_session(self, session_name: str):
-        """Clean up a session if it exists."""
-        if session_name in self._sessions:
-            try:
-                await self._ensure_sandbox()  # Ensure sandbox is initialized
-                self.sandbox.process.delete_session(self._sessions[session_name])
-                del self._sessions[session_name]
-            except Exception as e:
-                print(f"Warning: Failed to cleanup session {session_name}: {str(e)}")
+    #async def _cleanup_session(self, session_name: str):
+     #   """Clean up a session if it exists."""
+      #  if session_name in self._sessions:
+       #     try:
+        #        await self._ensure_sandbox()  # Ensure sandbox is initialized
+         #       self.sandbox.process.delete_session(self._sessions[session_name])
+          #      del self._sessions[session_name]
+           # except Exception as e:
+            #    print(f"Warning: Failed to cleanup session {session_name}: {str(e)}")
 
     @openapi_schema({
         "type": "function",
@@ -74,7 +75,9 @@ class SandboxShellTool(SandboxToolsBase):
             {"param_name": "session_name", "node_type": "attribute", "path": ".", "required": False},
             {"param_name": "timeout", "node_type": "attribute", "path": ".", "required": False}
         ],
-        example='''
+        example=
+        ''' 
+'''
         <!-- BLOCKING COMMANDS (Direct Execution) -->
         <!-- Example 1: Basic Command Execution -->
         <execute-command>
@@ -147,7 +150,8 @@ class SandboxShellTool(SandboxToolsBase):
         tmux kill-server
         </execute-command>
         '''
-    )
+#)
+'''
     async def execute_command(
         self, 
         command: str, 
@@ -172,7 +176,7 @@ class SandboxShellTool(SandboxToolsBase):
             command = f"cd {cwd} && {command}"
             
             # Execute command in session
-            from sandbox.sandbox import SessionExecuteRequest
+            from backend.sandbox.sandboxy import SessionExecuteRequest
             req = SessionExecuteRequest(
                 command=command,
                 var_async=False,  # This makes the command blocking by default
@@ -210,3 +214,4 @@ class SandboxShellTool(SandboxToolsBase):
         """Clean up all sessions."""
         for session_name in list(self._sessions.keys()):
             await self._cleanup_session(session_name)
+'''

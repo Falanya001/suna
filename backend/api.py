@@ -121,10 +121,10 @@ if config.ENV_MODE == EnvMode.LOCAL:
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=allowed_origins,
+    allow_origins=["https://miniature-guide-5ggxjgprqxrwcxrv-3000.app.github.dev"],
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allow_headers=["Content-Type", "Authorization"],
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Include the agent router with a prefix

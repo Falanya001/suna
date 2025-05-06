@@ -3,7 +3,7 @@ import json
 
 from agentpress.tool import ToolResult, openapi_schema, xml_schema
 from agentpress.thread_manager import ThreadManager
-from sandbox.sandbox import SandboxToolsBase, Sandbox
+from backend.sandbox.sandboxy import SandboxToolsBase, Sandbox
 from utils.logger import logger
 
 

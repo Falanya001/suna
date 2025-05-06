@@ -1,5 +1,7 @@
 "use client";
 
+console.log('📦 Root page loaded');
+
 import Link from "next/link";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { Input } from "@/components/ui/input";
@@ -8,7 +10,7 @@ import { FlickeringGrid } from "@/components/home/ui/flickering-grid";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { useState, useEffect, useRef, Suspense } from "react";
 import { useScroll } from "motion/react";
-import { signIn, signUp, forgotPassword } from "./actions";
+// import { signIn, signUp, forgotPassword } from "./actions";
 import { useSearchParams, useRouter } from "next/navigation";
 import { ArrowLeft, X, CheckCircle, AlertCircle, MailCheck, Loader2 } from "lucide-react";
 import { useAuth } from "@/components/AuthProvider";
@@ -21,6 +23,39 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
+
+import { createClient } from '@/lib/supabase/client'  // wherever your client is
+const supabase = createClient();
+
+async function handleSignIn(e: React.FormEvent<HTMLFormElement>) {
+  e.preventDefault();
+  const form = new FormData(e.currentTarget);
+  const email = form.get('email') as string;
+  const password = form.get('password') as string;
+  const returnUrl = new URLSearchParams(window.location.search).get('returnUrl') || '/dashboard';
+
+  console.log('Signing in with', { email, password, returnUrl });
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  console.log('Supabase.signIn response', { data, error });
+
+  if (error) {
+    alert('Sign-in failed: ' + error.message);
+  } else {
+    window.location.href = returnUrl;
+  }
+}
+
+async function handleSignUpClient(e: React.FormEvent<HTMLFormElement>) {
+  e.preventDefault();
+  const form = new FormData(e.currentTarget);
+  const email = form.get("email") as string;
+  const password = form.get("password") as string;
+  const confirm = form.get("confirmPassword") as string;
+  if (password !== confirm) return alert("Passwords do not match");
+  const { error } = await supabase.auth.signUp({ email, password });
+  if (error) alert("Sign up failed: " + error.message);
+  else alert("Check your email for the confirmation link");
+}
 
 function LoginContent() {
   const router = useRouter();
@@ -98,27 +133,11 @@ function LoginContent() {
     };
   }, [scrollY]);
 
-  const handleSignIn = async (prevState: any, formData: FormData) => {
-    if (returnUrl) {
-      formData.append("returnUrl", returnUrl);
-    } else {
-      formData.append("returnUrl", "/dashboard");
-    }
-    const result = await signIn(prevState, formData);
-    
-    // Check for success and redirectTo properties
-    if (result && typeof result === 'object' && 'success' in result && result.success && 'redirectTo' in result) {
-      // Use window.location for hard navigation to avoid stale state
-      window.location.href = result.redirectTo as string;
-      return null; // Return null to prevent normal form action completion
-    }
-    
-    return result;
-  };
 
   const handleSignUp = async (prevState: any, formData: FormData) => {
     // Store email for success state
     const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
     setRegistrationEmail(email);
 
     if (returnUrl) {
@@ -380,7 +399,7 @@ function LoginContent() {
               </div>
 
               {/* Form */}
-              <form className="space-y-4">
+              <form className="space-y-4" onSubmit={isSignUp ? handleSignUpClient : handleSignIn}>
                 <div>
                   <Input
                     id="email"
@@ -391,7 +410,7 @@ function LoginContent() {
                     required
                   />
                 </div>
-                
+
                 <div>
                   <Input
                     id="password"
@@ -415,17 +434,16 @@ function LoginContent() {
                     />
                   </div>
                 )}
-                
+
                 <div className="space-y-4 pt-4">
                   {!isSignUp ? (
                     <>
-                      <SubmitButton
-                        formAction={handleSignIn}
+                      <button
+                        type="submit"
                         className="w-full h-12 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 transition-all shadow-md"
-                        pendingText="Signing in..."
                       >
                         Sign in
-                      </SubmitButton>
+                      </button>
                       
                       <Link
                         href={`/auth?mode=signup${returnUrl ? `&returnUrl=${returnUrl}` : ''}`}
@@ -436,14 +454,13 @@ function LoginContent() {
                     </>
                   ) : (
                     <>
-                      <SubmitButton
-                        formAction={handleSignUp}
+                      <button
+                        type="submit"
                         className="w-full h-12 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 transition-all shadow-md"
-                        pendingText="Creating account..."
                       >
                         Sign up
-                      </SubmitButton>
-                      
+                      </button>
+
                       <Link
                         href={`/auth${returnUrl ? `?returnUrl=${returnUrl}` : ''}`}
                         className="flex h-12 items-center justify-center w-full text-center rounded-full border border-border bg-background hover:bg-accent/20 transition-all"
@@ -466,6 +483,7 @@ function LoginContent() {
                   </div>
                 )}
               </form>
+
 
               <div className="mt-8 text-center text-xs text-muted-foreground">
                 By continuing, you agree to our{' '}
